@@ -1,2 +1,2 @@
-1: da/ da
-2: s/ s
+[1]Serg/Rage
+[2]Serg/SECOND

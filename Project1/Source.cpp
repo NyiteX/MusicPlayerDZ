@@ -16,54 +16,87 @@ class MusicPlayer
 	vector<M>PlaylistMy;
 	vector<M>Music;
 public:
-	MusicPlayer() { }
+	MusicPlayer() { Load_PlaylistMy(Music, "Music.txt"); }
+	bool Proverka(const string& A)
+	{
+		if (A.size() > 1)
+		{
+			if (A[0] != '0' || isdigit(A[0]) != 0)
+			{
+				for (int i = 1; i < A.size(); i++)
+					if (isdigit(A[i]) == 0)
+						return 0;
+			}
+			else
+				return 0;
+		}
+		else
+			if (isdigit(A[0]) != 0)
+				return 1;
+			else
+				return 0;
+		return 1;
+	}
 
 	vector<M>GetPlaylistMy()const { return PlaylistMy; }
 	vector<M>GetPlaylistDefault()const { return PlaylistDefault; }
 	vector<M>GetMusic()const { return Music; }
-	void ClearPlaylistMy() { PlaylistMy.clear(); }
-	void ClearMusicList() { Music.clear(); }
-	void AddMyplaylist(vector<M>& tmp) { tmp.clear(); }
-	void ClearPlaylistDefault() { PlaylistDefault.clear(); }
-	void PrintPlaylist(const vector<M>&tmp)const
+	void Print_Playlist(const vector<M>&tmp)const
 	{
 		if (!tmp.empty())
 			for (int i = 0; i < tmp.size(); i++)
 			{
-				cout << i + 1 << ": " << tmp[i].ispolnitel << "/ " << tmp[i].songname << endl;
+				cout <<"[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
 			}
 		else
 			cout << "Music list is empty.\n";
 	}
-	vector<M> Add_ByIspolnitel(const string &name)
+	void Print_MusicByIspolnitel(vector<M>& tmp, const string& name)const
 	{
-		vector<M>tmp;
+		bool f = 0;
+		if (!tmp.empty())
+		{
+			for (int i = 0; i < tmp.size(); i++)
+			{
+				if (tmp[i].ispolnitel == name)
+				{
+					cout << "[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
+					f = 1;
+				}
+			}
+		}
+		else
+			cout << "Music list is empty.\n";
+		if (f == 0)
+			cout << "Not found.\n";
+	}
+	void Add_ByIspolnitel(vector<M>&tmp, const string &name)
+	{
+		bool f = 0;
 		if (!Music.empty())
+		{
+			tmp.clear();
 			for (int i = 0; i < Music.size(); i++)
 			{
 				if (Music[i].ispolnitel == name)
 				{
 					tmp.push_back(Music[i]);
+					f = 1;
 				}
 			}
+		}
 		else
 			cout << "Music list is empty.\n";
-		return tmp;
+		if (f == 0)
+			cout << "Not found.\n";
 	}
-	void Print_MusicByIspolnitel(const string& name)const
-	{
-		for (int i = 0; i < Music.size(); i++)
-		{
-			if (Music[i].ispolnitel == name)
-				cout <<"[" << i + 1 << "]" << Music[i].ispolnitel << "/" << Music[i].songname << endl;
-		}
-	}
-	void AddMusicList(vector<M>& tmp)
+	void Add_MusicList(vector<M>& tmp)
 	{
 		string str = "a";
 		int i = 0;
 		if (!tmp.empty())
-			i = tmp.size() - 1;
+			i = tmp.size();
+		system("cls");
 		cout << "0. Exit.\n~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 		while (str[0] != '0')
 		{
@@ -77,8 +110,41 @@ public:
 				cin >> str;
 				tmp[i].songname = str;
 				i++;
+				cout << endl;
 			}
 		}
+	}
+	void Add_toPlaylist(vector<M>& tmp)
+	{
+		string str = {"a"};
+		int id = 0;
+		while (Proverka(str)==0)
+		{
+			cout << "Get number of the song: ";
+			cin >> str;
+		}
+		id = stoi(str);
+		tmp.push_back(Music[id - 1]);
+	}
+	void Del_fromPlaylist(vector<M>& tmp)
+	{
+		if (!tmp.empty())
+		{
+			string str = { "a" };
+
+			int end = tmp.size();
+			while (Proverka(str) == 0)
+			{
+				cout << "Get number of the song: ";
+				cin >> str;
+				if (stoi(str) > tmp.size() || stoi(str)<1)
+					str = "a";
+			}
+
+			tmp.erase(tmp.begin() + stoi(str) -1);
+		}
+		else
+			cout << "Playlist is empty.\n";
 	}
 	void Save_PlaylistMy(const vector<M>& tmp, const string&n)const
 	{
@@ -90,6 +156,7 @@ public:
 				Savefile <<"[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
 			}
 			Savefile.close();
+			cout << "Done.\n";
 		}
 		else
 			cout << "File isnt open.\n";
@@ -108,7 +175,7 @@ public:
 				getline(Loadfile, str);
 				if (str.size() > 2)
 				{	
-					str2.resize(0);				
+					str2.clear();				
 					for (int i = 3; str[i] != '/'; i++)
 					{
 						str2 += str[i];
@@ -116,7 +183,7 @@ public:
 					}
 					tmp.resize(k + 1);
 					tmp[k].ispolnitel = str2;
-					str2.resize(0);
+					str2.clear();
 					for (int i = o+2; i<str.size(); i++)
 					{
 						str2 += str[i];
@@ -128,7 +195,77 @@ public:
 			Loadfile.close();
 		}
 		else
-			cout << "File isnt open.\n";
+			cout << "File wasnt open.\n";
+	}
+	void AppendPlaylists(vector<M>& A, const vector<M>& B)
+	{
+		for (int i = 0; i < B.size(); i++)
+		{
+			A.push_back(B[i]);
+		}
+		cout << "Done.\n";		
+	}
+	void CaseMenu(vector<M>& tmp, const string& n)
+	{
+		char vvod2;
+		do
+		{
+			system("cls");
+			cout << "\t~~~~~~~~~~~~~~~~~~ "<<n<<" ~~~~~~~~~~~~~~~~~~\n";
+			cout << "1. Add Music.\n";
+			cout << "2. Show this playlist.\n";
+			cout << "3. Load from file.\n";
+			cout << "4. Save to file.\n";
+			cout << "5. Search by ispolnitel.\n";
+			cout << "6. Delete music.\n";
+			cout << "ESC. Main menu.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+			vvod2 = _getch();
+			switch (vvod2)
+			{
+			case'1':
+			{
+				Print_Playlist(Music);
+				Add_toPlaylist(tmp);
+				system("pause");
+				break;
+			}
+			case'2':
+			{
+				Print_Playlist(tmp);
+				system("pause");
+				break;
+			}
+			case'3':
+			{
+				Load_PlaylistMy(tmp, n);
+				system("pause");
+				break;
+			}
+			case'4':
+			{
+				Save_PlaylistMy(tmp, n);
+				system("pause");
+				break;
+			}
+			case'5':
+			{
+				string str;
+				system("cls");
+				cout << "\t~~~~~~~~~~~~~~~~~~ Poisk ~~~~~~~~~~~~~~~~~~\nIspolnitel: ";
+				cin >> str;
+				Print_MusicByIspolnitel(Music, str);
+				system("pause");
+				break;
+			}
+			case'6':
+			{
+				Print_Playlist(tmp);
+				Del_fromPlaylist(tmp);
+				system("pause");
+				break;
+			}
+			}
+		} while (vvod2 != 27);
 	}
 	void Menu()
 	{
@@ -137,71 +274,22 @@ public:
 		{
 			system("cls");
 			cout << "\t~~~~~~~~~~~~~~~~~~ Music player ~~~~~~~~~~~~~~~~~~\n";
-			cout << "1.Default playlist.\n";
-			cout << "2.My playlist.\n";
-			cout << "3.All music.\n";
+			cout << "1. Default playlist.\n";
+			cout << "2. My playlist.\n";
+			cout << "3. All music.\n";
+			cout << "4. 2 in 1 Playlists.\n";
 			cout << "ESC. Exit.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 			vvod = _getch();
 			switch (vvod)
 			{
 			case'1':
 			{
-				char vvod2;
-				system("cls");
-				cout << "\t~~~~~~~~~~~~~~~~~~ Music player ~~~~~~~~~~~~~~~~~~\n";
-				cout << "1.Save to file.\n";
-				cout << "2.Read from file.\n";
-				cout << "3.Show this playlist.\n";
-				cout << "ESC. Exit.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-				vvod2 = _getch();
-				switch (vvod2)
-				{
-				case'1':
-				{
-					system("pause");
-					break;
-				}
-				default:
-					break;
-				}
+				CaseMenu(PlaylistDefault,"PlaylistDefault.txt");
 				break;
 			}
 			case'2':
 			{
-				char vvod2;
-				do
-				{
-					system("cls");
-					cout << "\t~~~~~~~~~~~~~~~~~~ Music player ~~~~~~~~~~~~~~~~~~\n";
-					cout << "1.Save to file.\n";
-					cout << "2.Read from file.\n";
-					cout << "3.Show this playlist.\n";
-					cout << "ESC. Exit.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-					vvod2 = _getch();
-					switch (vvod2)
-					{
-					case'1':
-					{
-						Save_PlaylistMy(GetPlaylistMy(),"PlaylistMy.txt");
-						system("pause");
-						break;
-					}
-					case'2':
-					{
-						Load_PlaylistMy(PlaylistMy, "PlaylistMy.txt");
-						system("pause");
-						break;
-					}
-					case'3':
-					{
-						PrintPlaylist(GetPlaylistMy());
-						system("pause");
-						break;
-					}
-					default:
-						break;
-					}
-				} while (vvod2 != 27);
+				CaseMenu(PlaylistMy, "PlaylistMy.txt");
 				break;
 			}
 			case'3':
@@ -210,54 +298,66 @@ public:
 				do
 				{
 					system("cls");
-					cout << "\t~~~~~~~~~~~~~~~~~~ Music player ~~~~~~~~~~~~~~~~~~\n";
-					cout << "1.Add Music.\n";
-					cout << "2.Search.\n";
-					cout << "3.Show this playlist.\n";
-					cout << "4.Save playlist.\n";
-					cout << "5.Load playlist.\n";
-					cout << "ESC. Exit.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+					cout << "\t~~~~~~~~~~~~~~~~~~ All music ~~~~~~~~~~~~~~~~~~\n";
+					cout << "1. Add Music.\n";
+					cout << "2. Show this playlist.\n";
+					cout << "3. Load playlist.\n";
+					cout << "4. Save playlist.\n";
+					cout << "5. Search + Add by ispolnitel.\n";
+					cout << "ESC. Main menu.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 					vvod2 = _getch();
 					switch (vvod2)
 					{
 					case'1':
 					{
-						AddMusicList(Music);
+						Add_MusicList(Music);
 						system("pause");
 						break;
 					}
 					case'2':
 					{
-						string str;
-						cout << "\tPoisk.\nIspolnitel: ";
-						cin >> str;
-						Print_MusicByIspolnitel(str);
-						Add_ByIspolnitel(str);
+						Print_Playlist(Music);
 						system("pause");
 						break;
 					}
 					case'3':
 					{
-						PrintPlaylist(GetMusic());
+						Load_PlaylistMy(Music, "Music.txt");						
 						system("pause");
 						break;
 					}
 					case'4':
 					{
-						Save_PlaylistMy(GetMusic(),"Music.txt");
+						Save_PlaylistMy(Music, "Music.txt");
 						system("pause");
 						break;
 					}
 					case'5':
 					{
-						Load_PlaylistMy(Music, "Music.txt");
+						string str;
+						system("cls");
+						cout << "\t~~~~~~~~~~~~~~~~~~ Poisk ~~~~~~~~~~~~~~~~~~\nIspolnitel: ";
+						cin >> str;
+						Print_MusicByIspolnitel(Music, str);
+						cout << "\n\tWanna add all of them to 'MyPlayList' ?\n";
+						cout << "1. Yes.\n2. No.\n";
+						char vvod3 = _getch();
+						if (vvod3 == '1')
+						{
+							Add_ByIspolnitel(PlaylistMy, str);
+							cout << "Done.\n";
+						}						
 						system("pause");
 						break;
 					}
-					default:
-						break;
 					}
 				} while (vvod2 != 27);
+				break;
+			}
+			case'4':
+			{
+				AppendPlaylists(PlaylistMy, PlaylistDefault);
+				system("pause");
 				break;
 			}
 			default:
