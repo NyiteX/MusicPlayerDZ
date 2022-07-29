@@ -154,18 +154,41 @@ public:
 	}
 	void Save_PlaylistMy(const vector<M>& tmp, const string&n)const
 	{
-		ofstream Savefile(n);
-		if (Savefile.is_open())
+		char ch;
+		cout << "1. Write fresh file.\n2. Write with old info.\n";
+		ch = _getch();
+		if (ch == '1')
 		{
-			for (int i = 0; i < tmp.size(); i++)
+			ofstream Savefile(n);
+			if (Savefile.is_open())
 			{
-				Savefile <<"[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
+				for (int i = 0; i < tmp.size(); i++)
+				{
+					Savefile << "[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
+				}
+				Savefile.close();
+				cout << "Done.\n";
 			}
-			Savefile.close();
-			cout << "Done.\n";
+			else
+				cout << "File isnt open.\n";
+			return;
 		}
-		else
-			cout << "File isnt open.\n";
+		if (ch == '2')
+		{
+			ofstream Savefile(n, ios::app);
+			if (Savefile.is_open())
+			{
+				for (int i = 0; i < tmp.size(); i++)
+				{
+					Savefile << "[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
+				}
+				Savefile.close();
+				cout << "Done.\n";
+			}
+			else
+				cout << "File isnt open.\n";
+			return;
+		}
 	}
 	void Load_PlaylistMy(vector<M>&tmp, const string& n)
 	{
@@ -218,7 +241,7 @@ public:
 		{
 			system("cls");
 			cout << "\t~~~~~~~~~~~~~~~~~~ "<<n<<" ~~~~~~~~~~~~~~~~~~\n";
-			cout << "1. Add Music.\n";
+			cout << "1. Add Music(from 'All music').\n";
 			cout << "2. Show this playlist.\n";
 			cout << "3. Load from file.\n";
 			cout << "4. Save to file.\n";
@@ -268,8 +291,18 @@ public:
 			}
 			case'6':
 			{
-				Print_Playlist(tmp);
-				Del_fromPlaylist(tmp);
+				system("cls");
+				cout << "\t~~~~~~~~~~~~~~~~~~ Delete ~~~~~~~~~~~~~~~~~~\n";
+				if (Print_Playlist(tmp))
+				{
+					char ch;
+					cout << "\n1. Delete 1 song with id.\n2. Delete all.\n";	
+					ch = _getch();
+					if (ch == '1')
+						Del_fromPlaylist(tmp);
+					if (ch == '2')
+						tmp.clear();
+				}
 				system("pause");
 				break;
 			}
@@ -313,6 +346,7 @@ public:
 					cout << "3. Load playlist.\n";
 					cout << "4. Save playlist.\n";
 					cout << "5. Search + Add by ispolnitel.\n";
+					cout << "6. Delete music.\n";
 					cout << "ESC. Main menu.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 					vvod2 = _getch();
 					switch (vvod2)
@@ -356,6 +390,23 @@ public:
 							Add_ByIspolnitel(PlaylistMy, str);
 							cout << "Done.\n";
 						}						
+						system("pause");
+						break;
+					}
+					case'6':
+					{
+						system("cls");
+						cout << "\t~~~~~~~~~~~~~~~~~~ Delete ~~~~~~~~~~~~~~~~~~\n";
+						if (Print_Playlist(Music))
+						{
+							char ch;
+							cout << "\n1. Delete 1 song with id.\n2. Delete all.\n";
+							ch = _getch();
+							if (ch == '1')
+								Del_fromPlaylist(Music);
+							if (ch == '2')
+								Music.clear();
+						}
 						system("pause");
 						break;
 					}
