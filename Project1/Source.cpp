@@ -16,7 +16,7 @@ class MusicPlayer
 	vector<M>PlaylistMy;
 	vector<M>Music;
 public:
-	MusicPlayer() { Load_PlaylistMy(Music, "Music.txt"); }
+	MusicPlayer() { }
 	bool Proverka(const string& A)
 	{
 		if (A.size() > 1)
@@ -41,15 +41,21 @@ public:
 	vector<M>GetPlaylistMy()const { return PlaylistMy; }
 	vector<M>GetPlaylistDefault()const { return PlaylistDefault; }
 	vector<M>GetMusic()const { return Music; }
-	void Print_Playlist(const vector<M>&tmp)const
+	bool Print_Playlist(const vector<M>&tmp)const
 	{
 		if (!tmp.empty())
+		{
 			for (int i = 0; i < tmp.size(); i++)
 			{
-				cout <<"[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
+				cout << "[" << i + 1 << "]" << tmp[i].ispolnitel << "/" << tmp[i].songname << endl;
 			}
+			return 1;
+		}
 		else
+		{
 			cout << "Music list is empty.\n";
+			return 0;
+		}
 	}
 	void Print_MusicByIspolnitel(vector<M>& tmp, const string& name)const
 	{
@@ -224,7 +230,7 @@ public:
 			{
 			case'1':
 			{
-				Print_Playlist(Music);
+				if(Print_Playlist(Music))
 				Add_toPlaylist(tmp);
 				system("pause");
 				break;
@@ -243,7 +249,10 @@ public:
 			}
 			case'4':
 			{
-				Save_PlaylistMy(tmp, n);
+				if (!tmp.empty())
+					Save_PlaylistMy(tmp, n);
+				else
+					cout << "Playlist is empty.\n";
 				system("pause");
 				break;
 			}
@@ -380,6 +389,7 @@ public:
 
 int main()
 {
+	setlocale(LC_ALL, "ru");
 	MusicPlayer A;
 	A.Menu();
 }
